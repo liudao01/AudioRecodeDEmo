@@ -24,6 +24,13 @@ void bqRecorderCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
     if (finish) {
         LOGE("录制完成")
         (*recordItf)->SetRecordState(recordItf, SL_RECORDSTATE_STOPPED);//声明当前录制状态
+        (*recordObj)->Destroy(recordObj);
+        recordObj = NULL;
+        recordItf = NULL;
+        (*slObjectEngine)->Destroy(slObjectEngine);
+        slObjectEngine = NULL;
+        engineItf = NULL;
+        delete(recordBuffer);
     } else {
         LOGE("正在录制")
         (*recorderBufferQueue)->Enqueue(recorderBufferQueue, recordBuffer->getRecordBuffer(),
@@ -90,7 +97,7 @@ Java_com_xyyy_www_audiorecord_MainActivity_startRecord(JNIEnv *env, jobject inst
     (*engineItf)->CreateAudioRecorder(engineItf, &recordObj, &audioSrc, &audioSnk, 1, id, req);
 
     (*recordObj)->Realize(recordObj, SL_BOOLEAN_FALSE);
-    (*recordObj)->GetInterface(recordObj, SL_IID_ENGINE, &recordItf);
+    (*recordObj)->GetInterface(recordObj, SL_IID_RECORD, &recordItf);
 
     (*recordObj)->GetInterface(recordObj, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &recorderBufferQueue);
 
@@ -113,5 +120,6 @@ JNIEXPORT void JNICALL
 Java_com_xyyy_www_audiorecord_MainActivity_stopRecord(JNIEnv *env, jobject instance) {
 
     // TODO
+    finish = true;
 
 }
